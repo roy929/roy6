@@ -13,7 +13,7 @@ def pop_up_message(text):
     win.destroy()
 
 
-def center_window(root, width=300, height=200):
+def center_window(root, width=600, height=400):
     # get screen width and height
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()

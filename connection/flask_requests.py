@@ -2,11 +2,21 @@ import requests
 import time
 import socket
 
-# hostname = 'DESKTOP-EVCG5AF'
-hostname = socket.gethostname()  # '127.0.0.1'
-server_ip = socket.gethostbyname(hostname)
-server_port = 5000
-flask_url = f'http://{server_ip}:{server_port}'
+# host_name = 'DESKTOP-EVCG5AF'  # COMPUTER 2
+host_name = input('enter host name, flask_server prints it in run')
+# host_name = socket.gethostname()  # use if flask runs on this PC
+host_ip = socket.gethostbyname(host_name)
+flask_port = 5000
+flask_url = f'http://{host_ip}:{flask_port}'
+
+
+def print_info():
+    print(f'host_name = {host_name}')
+    print(f'server ip = {host_ip}')
+    print(f'server port = {flask_port}')
+
+
+print_info()
 
 
 # returns ip or 0 if user doesnt exist

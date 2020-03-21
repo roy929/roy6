@@ -127,7 +127,7 @@ def stop_call():
     if request.method == 'DELETE':
         name = request.form.get("name")
         op = request.form.get("operation")
-        result = "there's nothing to delete"
+        result = "already canceled by other user"
 
         if op == 'call':
             row = Call.query.filter_by(src=name).first()
@@ -186,7 +186,7 @@ def check_connection():
 
 
 if __name__ == '__main__':
-    db.create_all(app=app)
+    # db.create_all(app=app)
     import socket
     n = socket.gethostname()
     print('hostname:', n)
