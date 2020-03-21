@@ -1,4 +1,4 @@
-# roy5
+# roy6
 voice_chat
 1. you need to use python 3.6 and import pyaudio and the flask has requirements.txt, download it
 2. you need to run 'flask_server' and 'chat_server' and 'receive'
