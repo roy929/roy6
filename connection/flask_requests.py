@@ -3,8 +3,8 @@ import time
 import socket
 
 # host_name = 'DESKTOP-EVCG5AF'  # COMPUTER 2
-host_name = input('enter host name, flask_server prints it in run')
-# host_name = socket.gethostname()  # use if flask runs on this PC
+host_name = input("enter host name, flask_server prints it in run\r\n"
+                  "if flask runs on this PC type 'localhost'")
 host_ip = socket.gethostbyname(host_name)
 flask_port = 5000
 flask_url = f'http://{host_ip}:{flask_port}'
