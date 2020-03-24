@@ -8,11 +8,8 @@ from connection import flask_requests
 class Login:
     MY_USER_NAME = ""
 
-    def __init__(self, win=None):
-        if win:
-            self.win = win
-        else:
-            self.win = Tk()
+    def __init__(self, win):
+        self.win = win
         self.win.title('Login')
         self.style = Style(self.win)
         self.frame = Frame(self.win)
@@ -21,14 +18,11 @@ class Login:
         center_window(self.win)
 
     def main(self):
-        # self.win.geometry('500x500')
         name = Label(self.frame, text='Name')
         pas = Label(self.frame, text='Password')
         enter = Button(self.frame, text='Enter', command=self.handle)
         self.frame.bind_all('<Return>', self.handle)
-
         self.entry_name.focus_set()
-
         # grid & pack
         name.grid(row=0, sticky=E)
         pas.grid(row=1, sticky=E)
@@ -41,24 +35,23 @@ class Login:
     def handle(self, event=None):
         name = self.entry_name.get()
         pas = self.entry_pas.get()
-
         is_connected = flask_requests.login(name, pas)
         if is_connected:
             self.MY_USER_NAME = name
             pop_up_message("you're in, {}".format(self.MY_USER_NAME))
-            # open chat mainpage
-            self.open_mainpage()
+            self.call_page()
         else:
-            self.entry_name.delete(0, len(name))
-            self.entry_pas.delete(0, len(pas))
+            self.entry_name.delete(0, END)
+            self.entry_pas.delete(0, END)
             pop_up_message("name or password is incorrect")
 
-    def open_mainpage(self):
+    def call_page(self):
         self.frame.destroy()
-        mp = Call(self.MY_USER_NAME, self.win)
+        mp = Call(self.win, self.MY_USER_NAME)
         mp.main()
 
 
 if __name__ == '__main__':
-    login = Login()
+    window = Tk()
+    login = Login(window)
     login.main()

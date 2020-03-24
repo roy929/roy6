@@ -7,11 +7,8 @@ from gui.gui_methods import center_window
 
 class Main:
 
-    def __init__(self, win=None):
-        if win:
-            self.win = win
-        else:
-            self.win = Tk()
+    def __init__(self, win):
+        self.win = win
         self.win.title('VoiceChat')
         self.style = Style(self.win)
         self.frame = Frame(self.win)
@@ -20,11 +17,9 @@ class Main:
         center_window(self.win)
 
     def main(self):
-        # grid & pack
         self.button_login.grid(row=0)
         self.button_register.grid(row=1)
         self.frame.pack()
-
         self.win.mainloop()
 
     def login(self):
@@ -37,5 +32,6 @@ class Main:
 
 
 if __name__ == '__main__':
-    f = Main()
+    window = Tk()
+    f = Main(window)
     f.main()

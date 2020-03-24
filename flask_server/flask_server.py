@@ -58,6 +58,14 @@ call_schema = CallSchema()
 calls_schema = CallSchema(many=True)
 
 
+@app.route('/user_list')
+def user_list():
+    if request.method == 'GET':
+        results = db.session.query(User.name).all()
+        user_names = [u.name for u in results]
+        return jsonify(user_names)
+
+
 @app.route('/get_ip', methods=['GET'])
 def get_ip():
     if request.method == 'GET':

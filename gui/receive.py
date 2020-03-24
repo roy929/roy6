@@ -10,12 +10,9 @@ from data import voice
 class Receive:
     MY_USER_NAME = ""
 
-    def __init__(self, my_user_name, win=None):
+    def __init__(self, win, my_user_name):
         self.MY_USER_NAME = my_user_name
-        if win:
-            self.win = win
-        else:
-            self.win = Tk()
+        self.win = win
         self.win.title('Receive')
         self.style = Style(self.win)
         self.main_frame = Frame(self.win)
@@ -56,7 +53,7 @@ class Receive:
                 break
             time.sleep(0.5)
 
-        user = flask_requests.who_is_calling(self.MY_USER_NAME)
+        user = flask_requests.get_src_name(self.MY_USER_NAME)
         print(user, 'called')
 
         self.main_frame.forget()
@@ -74,7 +71,7 @@ class Receive:
     def yes(self):
         self.called_frame.forget()
         self.in_chat_frame.pack()
-        user = flask_requests.who_is_calling(self.MY_USER_NAME)
+        user = flask_requests.get_src_name(self.MY_USER_NAME)
         if flask_requests.accept(user, self.MY_USER_NAME):
             end_thread = Thread(target=self.check_if_chat_over, args=[user])
             end_thread.start()
@@ -97,5 +94,6 @@ class Receive:
 
 
 if __name__ == '__main__':
-    r = Receive('kkk')
+    window = Tk()
+    r = Receive(window, 'kkk')
     r.main()

@@ -12,30 +12,31 @@ class Call:
     cancel = False
     timed_out = False
 
-    def __init__(self, my_user_name, win=None):
+    def __init__(self, win, my_user_name):
         self.MY_USER_NAME = my_user_name
-        if win:
-            self.win = win
-        else:
-            self.win = Tk()
+        self.win = win
         self.win.title('VoiceChat')
         self.style = Style(self.win)
         self.start_frame = Frame(self.win)
         self.in_chat_frame = Frame(self.win)
         self.text1 = Label(self.start_frame, text='Call to')
         self.text2 = Label(self.in_chat_frame)
+        self.users = Listbox(self.start_frame, fg='green')
         self.user_to_call = Entry(self.start_frame)
         self.call = Button(self.start_frame, text='Call', command=self.pre_call)
         self.end_call = Button(self.in_chat_frame, text='Stop calling', command=self.stop_calling)
         self.end_chat = Button(self.in_chat_frame, text='End Chat', command=self.close_chat)
         center_window(self.win)
+        self.set_users_list()
 
+    # packing and set up
     def main(self):
-        # packing and set up
         # frame1
         self.text1.pack(side=TOP)
         self.user_to_call.pack()
         self.call.pack()
+        self.users.pack()
+        self.users.bind_all('<<ListboxSelect>>', self.put_in_call)
         self.start_frame.bind_all('<Return>', self.pre_call)
         self.user_to_call.focus_set()
         self.start_frame.pack()
@@ -45,9 +46,24 @@ class Call:
 
         self.win.mainloop()
 
+    def set_users_list(self):
+        self.users.delete(0, END)
+        users = flask_requests.user_lists()
+        for user in users:
+            if user != self.MY_USER_NAME:
+                self.users.insert(END, user)
+        if self.users.size() < 10:
+            self.users.configure(height=self.users.size())
+
+    def put_in_call(self, event=None):
+        index = self.users.curselection()
+        name = self.users.get(index)
+        self.user_to_call.delete(0, END)
+        self.user_to_call.insert(0, name)
+
     def pre_call(self, event=None):
         user_name = self.user_to_call.get()
-        self.user_to_call.delete(0, len(user_name))
+        self.user_to_call.delete(0, END)
         if len(user_name) > 2 and user_name != self.MY_USER_NAME:
             user_ip = flask_requests.get_user_ip(user_name)
             if user_ip:  # checks if the user exists
@@ -118,6 +134,7 @@ class Call:
 
 
 if __name__ == '__main__':
+    window = Tk()
     my_name = 'roy'
-    conn = Call(my_name)
+    conn = Call(window, my_name)
     conn.main()

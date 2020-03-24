@@ -19,6 +19,11 @@ def print_info():
 print_info()
 
 
+def user_lists():
+    r = requests.get(flask_url + '/user_list')
+    return r.json()  # r.status_code
+
+
 # returns ip or 0 if user doesnt exist
 def get_user_ip(name):
     data = {'name': name}
@@ -66,7 +71,7 @@ def look_for_call(dst_name):
     return r.json()  # src name || ""
 
 
-def who_is_calling(dst_name):
+def get_src_name(dst_name):
     name = look_for_call(dst_name)
     if name:
         return name
@@ -96,10 +101,11 @@ def stop_chat(name):
 
 if __name__ == '__main__':
     my_name = 'kkk'
+    print(user_lists())
     while True:
         if look_for_call(my_name):
             break
-    user = who_is_calling(my_name)
+    user = get_src_name(my_name)
     print(user)
     accept(my_name, user)
 
