@@ -6,7 +6,7 @@ from connection import flask_requests
 
 
 class Login:
-    MY_USER_NAME = ""
+    USER_NAME = ""
 
     def __init__(self, win):
         self.win = win
@@ -37,8 +37,8 @@ class Login:
         pas = self.entry_pas.get()
         is_connected = flask_requests.login(name, pas)
         if is_connected:
-            self.MY_USER_NAME = name
-            pop_up_message("you're in, {}".format(self.MY_USER_NAME))
+            self.USER_NAME = name
+            pop_up_message("you're in, {}".format(self.USER_NAME))
             self.call_page()
         else:
             self.entry_name.delete(0, END)
@@ -47,7 +47,7 @@ class Login:
 
     def call_page(self):
         self.frame.destroy()
-        mp = Call(self.win, self.MY_USER_NAME)
+        mp = Call(self.win, self.USER_NAME)
         mp.main()
 
 

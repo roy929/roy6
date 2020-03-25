@@ -101,7 +101,7 @@ def stop_chat(name):
 
 if __name__ == '__main__':
     my_name = 'kkk'
-    print(user_lists())
+    print(*user_lists(), sep='\n')
     while True:
         if look_for_call(my_name):
             break

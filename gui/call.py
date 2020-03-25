@@ -8,24 +8,25 @@ from data import voice
 
 
 class Call:
-    MY_USER_NAME = ""
+    USER_NAME = ""
     cancel = False
     timed_out = False
 
     def __init__(self, win, my_user_name):
-        self.MY_USER_NAME = my_user_name
+        self.USER_NAME = my_user_name
         self.win = win
         self.win.title('VoiceChat')
         self.style = Style(self.win)
         self.start_frame = Frame(self.win)
         self.in_chat_frame = Frame(self.win)
-        self.text1 = Label(self.start_frame, text='Call to')
-        self.text2 = Label(self.in_chat_frame)
-        self.users = Listbox(self.start_frame, fg='green')
-        self.user_to_call = Entry(self.start_frame)
-        self.call = Button(self.start_frame, text='Call', command=self.pre_call)
-        self.end_call = Button(self.in_chat_frame, text='Stop calling', command=self.stop_calling)
-        self.end_chat = Button(self.in_chat_frame, text='End Chat', command=self.close_chat)
+        self.text1 = Label(self.start_frame, text='Call to', font=('Ariel', 20), foreground='magenta')
+        self.text2 = Label(self.in_chat_frame, font=('Ariel', 20), foreground='magenta')
+        self.text3 = Label(self.start_frame, text='Users', font=('Ariel', 18), foreground='blue')
+        self.users = Listbox(self.start_frame, fg='green', font=('Ariel', 12))
+        self.user_to_call = Entry(self.start_frame, font=('Ariel', 12))
+        self.callB = Button(self.start_frame, text='Call', command=self.pre_call)
+        self.cancelB = Button(self.in_chat_frame, text='Cancel Call', command=self.stop_calling)
+        self.end_chatB = Button(self.in_chat_frame, text='End Chat', command=self.close_chat)
         center_window(self.win)
         self.set_users_list()
 
@@ -34,7 +35,8 @@ class Call:
         # frame1
         self.text1.pack(side=TOP)
         self.user_to_call.pack()
-        self.call.pack()
+        self.callB.pack()
+        self.text3.pack()
         self.users.pack()
         self.users.bind_all('<<ListboxSelect>>', self.put_in_call)
         self.start_frame.bind_all('<Return>', self.pre_call)
@@ -42,7 +44,7 @@ class Call:
         self.start_frame.pack()
         # frame2
         self.text2.pack(side=TOP)
-        self.end_call.pack()
+        self.cancelB.pack()
 
         self.win.mainloop()
 
@@ -50,7 +52,7 @@ class Call:
         self.users.delete(0, END)
         users = flask_requests.user_lists()
         for user in users:
-            if user != self.MY_USER_NAME:
+            if user != self.USER_NAME:
                 self.users.insert(END, user)
         if self.users.size() < 10:
             self.users.configure(height=self.users.size())
@@ -64,7 +66,7 @@ class Call:
     def pre_call(self, event=None):
         user_name = self.user_to_call.get()
         self.user_to_call.delete(0, END)
-        if len(user_name) > 2 and user_name != self.MY_USER_NAME:
+        if len(user_name) > 2 and user_name != self.USER_NAME:
             user_ip = flask_requests.get_user_ip(user_name)
             if user_ip:  # checks if the user exists
                 # start call
@@ -84,7 +86,7 @@ class Call:
             if time.time() > max_time:
                 self.timed_out = True
                 return False
-            if flask_requests.is_in_chat(self.MY_USER_NAME, user_name) == 'call':
+            if flask_requests.is_in_chat(self.USER_NAME, user_name) == 'call':
                 return True
             time.sleep(0.5)
         return False
@@ -93,28 +95,25 @@ class Call:
         self.text2.configure(text=f'Calling {user_name}...')
         self.start_frame.forget()
         self.in_chat_frame.pack()
-        is_posted = flask_requests.call(self.MY_USER_NAME, user_name)
+        is_posted = flask_requests.call(self.USER_NAME, user_name)
         if is_posted:
             print('call posted')
             if self.wait_for_answer(user_name, 2):
                 print('call accepted')
-                self.end_call.forget()
+                self.cancelB.forget()
                 self.text2.configure(text='In chat with {0}'.format(user_name))
-                self.end_chat.pack()
+                self.end_chatB.pack()
                 voice.start()  # start chat
                 # set frame back
-                self.end_call.pack()
-                self.end_chat.forget()
+                self.cancelB.pack()
+                self.end_chatB.forget()
             elif self.timed_out:  # # waited too long for response from the call target
-                flask_requests.stop_calling(self.MY_USER_NAME)
+                flask_requests.stop_calling(self.USER_NAME)
                 pop_up_message('call canceled, waiting too long for answer')
                 print('call canceled, waiting too long for answer')
-            elif self.cancel:  # user canceled his call
-                pop_up_message('call was canceled')
-                print('call was canceled')
         else:  # couldn't call
             pop_up_message("error, call already exists, please try again")
-            flask_requests.stop_calling(self.MY_USER_NAME)
+            flask_requests.stop_calling(self.USER_NAME)
 
         # reset page
         self.cancel = False
@@ -123,13 +122,13 @@ class Call:
         self.start_frame.pack()
 
     def close_chat(self):
-        flask_requests.stop_chat(self.MY_USER_NAME)
+        flask_requests.stop_chat(self.USER_NAME)
         voice.end()
         self.in_chat_frame.forget()
         self.start_frame.pack()
 
     def stop_calling(self):
-        flask_requests.stop_calling(self.MY_USER_NAME)
+        flask_requests.stop_calling(self.USER_NAME)
         self.cancel = True
 
 
