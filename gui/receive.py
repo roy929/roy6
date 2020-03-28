@@ -8,20 +8,20 @@ from data import voice
 
 
 class Receive:
-    MY_USER_NAME = ""
+    USER_NAME = ""
 
-    def __init__(self, win, my_user_name):
-        self.MY_USER_NAME = my_user_name
+    def __init__(self, win, user_name):
+        self.USER_NAME = user_name
         self.win = win
         self.win.title('Receive')
         self.style = Style(self.win)
         self.main_frame = Frame(self.win)
         self.called_frame = Frame(self.win)
         self.in_chat_frame = Frame(self.win)
-        self.msg1 = Label(self.main_frame, text='waiting for a call')
-        self.msg2 = Label(self.called_frame)
-        self.msg3 = Label(self.in_chat_frame, text='in chat')
-        self.cancel_button = Button(self.in_chat_frame, text='cancel', command=self.cancel)
+        self.msg1 = Label(self.main_frame, text='waiting for a call', font=('Ariel', 20), foreground='magenta')
+        self.msg2 = Label(self.called_frame, font=('Ariel', 20), foreground='magenta')
+        self.msg3 = Label(self.in_chat_frame, font=('Ariel', 20), foreground='magenta')
+        self.end_chatB = Button(self.in_chat_frame, text='End Chat', command=self.cancel)
         self.yes_button = Button(self.called_frame, text='yes', command=self.yes)
         self.no_button = Button(self.called_frame, text='no', command=self.no)
         center_window(self.win)
@@ -38,7 +38,7 @@ class Receive:
         self.no_button.pack()
         # frame 3:
         self.msg3.pack()
-        self.cancel_button.pack()
+        self.end_chatB.pack()
 
     def main(self):
         self.set()  # need to run only one time
@@ -49,21 +49,22 @@ class Receive:
 
     def wait_for_a_call(self):
         while True:
-            if flask_requests.look_for_call(self.MY_USER_NAME):
+            if flask_requests.look_for_call(self.USER_NAME):
                 break
             time.sleep(0.5)
 
-        user = flask_requests.get_src_name(self.MY_USER_NAME)
+        user = flask_requests.get_src_name(self.USER_NAME)
         print(user, 'called')
 
         self.main_frame.forget()
         self.called_frame.pack()
         self.msg2.configure(text=f'you got a call from {user}')
+        self.msg3.configure(text=f'In chat with {user}')
 
     def cancel(self):
         self.in_chat_frame.forget()
         self.main_frame.pack()
-        flask_requests.stop_chat(self.MY_USER_NAME)
+        flask_requests.stop_chat(self.USER_NAME)
         print('end')
         wait_thread = Thread(target=self.wait_for_a_call)
         wait_thread.start()
@@ -71,8 +72,8 @@ class Receive:
     def yes(self):
         self.called_frame.forget()
         self.in_chat_frame.pack()
-        user = flask_requests.get_src_name(self.MY_USER_NAME)
-        if flask_requests.accept(user, self.MY_USER_NAME):
+        user = flask_requests.get_src_name(self.USER_NAME)
+        if flask_requests.accept(user, self.USER_NAME):
             end_thread = Thread(target=self.check_if_chat_over, args=[user])
             end_thread.start()
             voice_thread = Thread(target=voice.start)
@@ -81,14 +82,14 @@ class Receive:
     def no(self):
         self.called_frame.forget()
         self.main_frame.pack()
-        flask_requests.stop_chat(self.MY_USER_NAME)
+        flask_requests.stop_chat(self.USER_NAME)
         wait_thread = Thread(target=self.wait_for_a_call)
         wait_thread.start()
 
     def check_if_chat_over(self, user):
         while True:
             time.sleep(0.5)
-            if not flask_requests.is_in_chat(user, self.MY_USER_NAME):
+            if not flask_requests.is_in_chat(user, self.USER_NAME):
                 voice.end()
                 break
 
