@@ -5,6 +5,9 @@ import time
 from gui.gui_methods import pop_up_message, center_window
 from connection import flask_requests
 from data import voice
+from winsound import PlaySound, SND_LOOP, SND_ASYNC, SND_PURGE
+
+ring = 'ring.wav'
 
 
 class Call:
@@ -82,6 +85,7 @@ class Call:
     def wait_for_answer(self, user_name, timeout=1):
         max_time = time.time() + 60 * timeout  # 1 minutes from now
         # check if 'calling' changed to 'call'
+        PlaySound(ring, SND_LOOP + SND_ASYNC)
         while not self.cancel:
             if time.time() > max_time:
                 self.timed_out = True
@@ -89,6 +93,7 @@ class Call:
             if flask_requests.is_in_chat(self.USER_NAME, user_name) == 'call':
                 return True
             time.sleep(0.5)
+        PlaySound(None, SND_PURGE)
         return False
 
     def call_now(self, user_name):
@@ -101,7 +106,7 @@ class Call:
             if self.wait_for_answer(user_name, 2):
                 print('call accepted')
                 self.cancelB.forget()
-                self.text2.configure(text='In chat with {0}'.format(user_name))
+                self.text2.configure(text=f'In chat with {user_name}')
                 self.end_chatB.pack()
                 voice.start()  # start chat
                 # set frame back
@@ -109,11 +114,12 @@ class Call:
                 self.end_chatB.forget()
             elif self.timed_out:  # # waited too long for response from the call target
                 flask_requests.stop_calling(self.USER_NAME)
+                # waited too long for response from the call target
                 pop_up_message('call canceled, waiting too long for answer')
                 print('call canceled, waiting too long for answer')
-        else:  # couldn't call
-            pop_up_message("error, call already exists, please try again")
+        else:  # call already exists, handling
             flask_requests.stop_calling(self.USER_NAME)
+            self.call_now(user_name)
 
         # reset page
         self.cancel = False
