@@ -135,7 +135,7 @@ def stop_call():
     if request.method == 'DELETE':
         name = request.form.get("name")
         op = request.form.get("operation")
-        result = "already canceled by other user"
+        result = "was already canceled"
 
         if op == 'call':
             row = Call.query.filter_by(src=name).first()

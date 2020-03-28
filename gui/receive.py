@@ -15,34 +15,31 @@ class Receive:
         self.win = win
         self.win.title('Receive')
         self.style = Style(self.win)
-        self.main_frame = Frame(self.win)
-        self.called_frame = Frame(self.win)
-        self.in_chat_frame = Frame(self.win)
-        self.msg1 = Label(self.main_frame, text='waiting for a call', font=('Ariel', 20), foreground='magenta')
-        self.msg2 = Label(self.called_frame, font=('Ariel', 20), foreground='magenta')
-        self.msg3 = Label(self.in_chat_frame, font=('Ariel', 20), foreground='magenta')
-        self.end_chatB = Button(self.in_chat_frame, text='End Chat', command=self.cancel)
-        self.yes_button = Button(self.called_frame, text='yes', command=self.yes)
-        self.no_button = Button(self.called_frame, text='no', command=self.no)
+        self.mainF = Frame(self.win)
+        self.callF = Frame(self.win)
+        self.chatF = Frame(self.win)
+        self.text1 = Label(self.callF, font=('Ariel', 20), foreground='magenta')
+        self.text2 = Label(self.chatF, font=('Ariel', 20), foreground='magenta')
         center_window(self.win)
 
     def set(self):
         # grid & pack
-        # # frame 1:
-        self.msg1.pack()
-        # frame 2:
-        self.msg2.pack()
-        self.called_frame.bind_all('<Return>', self.yes)
-        self.yes_button.focus_set()
-        self.yes_button.pack()
-        self.no_button.pack()
-        # frame 3:
-        self.msg3.pack()
-        self.end_chatB.pack()
+        # mainF:
+        Label(self.mainF, text='waiting for a call', font=('Ariel', 20), foreground='magenta').pack()
+        # callF:
+        self.text1.pack()
+        self.callF.bind_all('<Return>', self.yes)
+        yes = Button(self.callF, text='yes', command=self.yes)
+        yes.focus_set()
+        yes.pack()
+        Button(self.callF, text='no', command=self.no).pack()
+        # chatF:
+        self.text2.pack()
+        Button(self.chatF, text='End Chat', command=self.cancel).pack()
 
     def main(self):
-        self.set()  # need to run only one time
-        self.main_frame.pack()
+        self.set()
+        self.mainF.pack()
         wait_thread = Thread(target=self.wait_for_a_call)
         wait_thread.start()
         self.win.mainloop()
@@ -56,22 +53,22 @@ class Receive:
         user = flask_requests.get_src_name(self.USER_NAME)
         print(user, 'called')
 
-        self.main_frame.forget()
-        self.called_frame.pack()
-        self.msg2.configure(text=f'you got a call from {user}')
-        self.msg3.configure(text=f'In chat with {user}')
+        self.mainF.forget()
+        self.callF.pack()
+        self.text1.configure(text=f'you got a call from {user}\ndo you want to agree?')
+        self.text2.configure(text=f'In chat with {user}')
 
     def cancel(self):
-        self.in_chat_frame.forget()
-        self.main_frame.pack()
+        self.chatF.forget()
+        self.mainF.pack()
         flask_requests.stop_chat(self.USER_NAME)
         print('end')
         wait_thread = Thread(target=self.wait_for_a_call)
         wait_thread.start()
 
     def yes(self):
-        self.called_frame.forget()
-        self.in_chat_frame.pack()
+        self.callF.forget()
+        self.chatF.pack()
         user = flask_requests.get_src_name(self.USER_NAME)
         if flask_requests.accept(user, self.USER_NAME):
             end_thread = Thread(target=self.check_if_chat_over, args=[user])
@@ -80,8 +77,8 @@ class Receive:
             voice_thread.start()
 
     def no(self):
-        self.called_frame.forget()
-        self.main_frame.pack()
+        self.callF.forget()
+        self.mainF.pack()
         flask_requests.stop_chat(self.USER_NAME)
         wait_thread = Thread(target=self.wait_for_a_call)
         wait_thread.start()
