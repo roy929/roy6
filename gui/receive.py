@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter.ttk import *
 from threading import Thread
 import time
-from connection import flask_requests
+from connection import conn
 from gui.gui_methods import center_window
 from data import voice
 
@@ -46,11 +46,11 @@ class Receive:
 
     def wait_for_a_call(self):
         while True:
-            if flask_requests.look_for_call(self.USER_NAME):
+            if conn.look_for_call(self.USER_NAME):
                 break
             time.sleep(0.5)
 
-        user = flask_requests.get_src_name(self.USER_NAME)
+        user = conn.get_src_name(self.USER_NAME)
         print(user, 'called')
 
         self.mainF.forget()
@@ -61,7 +61,7 @@ class Receive:
     def cancel(self):
         self.chatF.forget()
         self.mainF.pack()
-        flask_requests.stop_chat(self.USER_NAME)
+        conn.stop_chat(self.USER_NAME)
         print('end')
         wait_thread = Thread(target=self.wait_for_a_call)
         wait_thread.start()
@@ -69,8 +69,8 @@ class Receive:
     def yes(self):
         self.callF.forget()
         self.chatF.pack()
-        user = flask_requests.get_src_name(self.USER_NAME)
-        if flask_requests.accept(user, self.USER_NAME):
+        user = conn.get_src_name(self.USER_NAME)
+        if conn.accept(user, self.USER_NAME):
             end_thread = Thread(target=self.check_if_chat_over, args=[user])
             end_thread.start()
             voice_thread = Thread(target=voice.start)
@@ -79,14 +79,14 @@ class Receive:
     def no(self):
         self.callF.forget()
         self.mainF.pack()
-        flask_requests.stop_chat(self.USER_NAME)
+        conn.stop_chat(self.USER_NAME)
         wait_thread = Thread(target=self.wait_for_a_call)
         wait_thread.start()
 
     def check_if_chat_over(self, user):
         while True:
             time.sleep(0.5)
-            if not flask_requests.is_in_chat(user, self.USER_NAME):
+            if not conn.is_in_chat(user, self.USER_NAME):
                 voice.end()
                 break
 

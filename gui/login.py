@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter.ttk import *
 from gui.gui_methods import pop_up_message, center_window
 from gui.call import Call
-from connection import flask_requests
+from connection import conn
 
 
 class Login:
@@ -35,7 +35,7 @@ class Login:
     def handle(self, event=None):
         name = self.entry_name.get()
         pas = self.entry_pas.get()
-        is_connected = flask_requests.login(name, pas)
+        is_connected = conn.login(name, pas)
         if is_connected:
             self.USER_NAME = name
             pop_up_message("you're in, {}".format(self.USER_NAME))

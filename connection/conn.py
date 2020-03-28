@@ -11,7 +11,7 @@ flask_url = f'http://{host_ip}:{flask_port}'
 
 
 def print_info():
-    print(f'host_name = {host_name}')
+    # print(f'host_name = {host_name}')
     print(f'server ip = {host_ip}')
     print(f'server port = {flask_port}')
 

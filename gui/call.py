@@ -3,7 +3,7 @@ from tkinter.ttk import *
 from threading import Thread
 import time
 from gui.gui_methods import pop_up_message, center_window
-from connection import flask_requests
+from connection import conn
 from data import voice
 from winsound import PlaySound, SND_LOOP, SND_ASYNC, SND_PURGE
 
@@ -54,7 +54,7 @@ class Call:
 
     def set_users_list(self):
         self.users.delete(0, END)
-        users = flask_requests.user_lists()
+        users = conn.user_lists()
         for user in users:
             if user != self.USER_NAME:
                 self.users.insert(END, user)
@@ -71,7 +71,7 @@ class Call:
         target = self.user_to_call.get()
         self.user_to_call.delete(0, END)
         if len(target) > 2 and target != self.USER_NAME:
-            user_ip = flask_requests.get_user_ip(target)
+            user_ip = conn.get_user_ip(target)
             if user_ip:  # checks if the user exists
                 # start call
                 t = Thread(target=self.call_now, args=(target,))
@@ -94,7 +94,7 @@ class Call:
             if time.time() > max_time:
                 result = 'timed_out'
                 break
-            if flask_requests.is_in_chat(self.USER_NAME, target) == 'call':
+            if conn.is_in_chat(self.USER_NAME, target) == 'call':
                 result = 'accepted'
                 break
             time.sleep(0.5)
@@ -106,7 +106,7 @@ class Call:
         self.text2.configure(text=f'In chat with {target}')
         self.mainF.forget()
         self.callF.pack()
-        is_posted = flask_requests.call(self.USER_NAME, target)
+        is_posted = conn.call(self.USER_NAME, target)
         if is_posted:
             print('call posted')
             result = self.wait_for_answer(target, 2)
@@ -116,15 +116,15 @@ class Call:
                 print('call accepted')
                 voice.start()  # start chat
             else:
-                flask_requests.stop_calling(self.USER_NAME)
-                flask_requests.stop_chat(self.USER_NAME)
+                conn.stop_calling(self.USER_NAME)
+                conn.stop_chat(self.USER_NAME)
 
                 if result == 'timed_out':  # waited too long for response from the call target
                     pop_up_message("call canceled, didn't receive answer in time")
                     print("call canceled, didn't receive answer in time")
 
         else:  # call already exists, handling
-            flask_requests.stop_calling(self.USER_NAME)
+            conn.stop_calling(self.USER_NAME)
             self.call_now(target)
 
         # reset page
@@ -134,7 +134,7 @@ class Call:
         self.mainF.pack()
 
     def close_chat(self):
-        flask_requests.stop_chat(self.USER_NAME)
+        conn.stop_chat(self.USER_NAME)
         voice.end()
         self.chatF.forget()
         self.mainF.pack()

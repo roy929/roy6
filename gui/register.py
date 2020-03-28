@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
-from connection import flask_requests
+from connection import conn
 from gui.gui_methods import pop_up_message, center_window
 
 
@@ -42,7 +42,7 @@ class Register:
             pop_up_message('name and password must be at least 3 characters')
         # add to database unless name is already used
         else:
-            is_registered = flask_requests.register(name, pas)
+            is_registered = conn.register(name, pas)
             if is_registered:
                 pop_up_message('added to database')
                 self.main_page()
