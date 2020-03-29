@@ -19,13 +19,14 @@ class Call:
         self.win = win
         self.win.title('VoiceChat')
         self.style = Style(self.win)
+        self.style.configure('TLabel', font=('Ariel', 20), foreground='magenta')
         self.mainF = Frame(self.win)
         self.callF = Frame(self.win)
         self.chatF = Frame(self.win)
-        self.text1 = Label(self.callF, font=('Ariel', 20), foreground='magenta')
-        self.text2 = Label(self.chatF, font=('Ariel', 20), foreground='magenta')
+        self.text1 = Label(self.callF, style='TLabel')
+        self.text2 = Label(self.chatF, style='TLabel')
         self.users = Listbox(self.mainF, fg='green', font=('Ariel', 12))
-        self.user_to_call = Entry(self.mainF, font=('Ariel', 12))
+        self.target_name = Entry(self.mainF, font=('Ariel', 12))
         center_window(self.win)
         self.set_users_list()
 
@@ -33,17 +34,17 @@ class Call:
         self.set()
         self.win.mainloop()
 
-    # packing and set up
+    # sets the widgets on the frames
     def set(self):
         # mainF
         Label(self.mainF, text='Call to', font=('Ariel', 20), foreground='magenta').pack(side=TOP)
-        self.user_to_call.pack()
+        self.target_name.pack()
         Button(self.mainF, text='Call', command=self.pre_call).pack()
         Label(self.mainF, text='Users', font=('Ariel', 18), foreground='blue').pack()
         self.users.pack()
-        self.users.bind_all('<<ListboxSelect>>', self.put_in_call)
+        self.users.bind_all('<<ListboxSelect>>', self.to_entry)
         self.mainF.bind_all('<Return>', self.pre_call)
-        self.user_to_call.focus_set()
+        self.target_name.focus_set()
         self.mainF.pack()
         # callF
         self.text1.pack(side=TOP)
@@ -52,6 +53,7 @@ class Call:
         self.text2.pack()
         Button(self.chatF, text='End Chat', command=self.close_chat).pack()
 
+    # create list of users
     def set_users_list(self):
         self.users.delete(0, END)
         users = conn.user_lists()
@@ -61,15 +63,17 @@ class Call:
         if self.users.size() < 10:
             self.users.configure(height=self.users.size())
 
-    def put_in_call(self, event=None):
+    # put a user in entry
+    def to_entry(self, event=None):
         index = self.users.curselection()
         name = self.users.get(index)
-        self.user_to_call.delete(0, END)
-        self.user_to_call.insert(0, name)
+        self.target_name.delete(0, END)
+        self.target_name.insert(0, name)
 
+    # checks if name valid, if so runs call
     def pre_call(self, event=None):
-        target = self.user_to_call.get()
-        self.user_to_call.delete(0, END)
+        target = self.target_name.get()
+        self.target_name.delete(0, END)
         if len(target) > 2 and target != self.USER_NAME:
             user_ip = conn.get_user_ip(target)
             if user_ip:  # checks if the user exists
@@ -83,6 +87,7 @@ class Call:
         else:
             pop_up_message("you can't call yourself")
 
+    # checks if target agreed to chat
     def wait_for_answer(self, target, timeout=1):
         max_time = time.time() + 60 * timeout  # 1 minutes from now
         # check if 'calling' changed to 'call'
@@ -101,6 +106,7 @@ class Call:
         PlaySound(None, SND_PURGE)
         return result
 
+    # calls and handle the call
     def call_now(self, target):
         self.text1.configure(text=f'Calling {target}...')
         self.text2.configure(text=f'In chat with {target}')
@@ -123,7 +129,7 @@ class Call:
                     pop_up_message("call canceled, didn't receive answer in time")
                     print("call canceled, didn't receive answer in time")
 
-        else:  # call already exists, handling
+        else:  # error, call already exists, handling
             conn.stop_calling(self.USER_NAME)
             self.call_now(target)
 
@@ -133,12 +139,14 @@ class Call:
         self.chatF.forget()
         self.mainF.pack()
 
+    # closes chat and resets to main frame
     def close_chat(self):
         conn.stop_chat(self.USER_NAME)
         voice.end()
         self.chatF.forget()
         self.mainF.pack()
 
+    # cancels call
     def stop_calling(self):
         self.cancel = True
 
@@ -146,5 +154,5 @@ class Call:
 if __name__ == '__main__':
     window = Tk()
     my_name = 'roy'
-    conn = Call(window, my_name)
-    conn.main()
+    c = Call(window, my_name)
+    c.main()

@@ -1,9 +1,9 @@
 from tkinter import *
 from tkinter.ttk import Style
+from time import sleep
 
 
 def pop_up_message(text):
-    from time import sleep
     win = Tk()
     center_window(win, height=100)
     Style(win)
@@ -22,3 +22,7 @@ def center_window(root, width=600, height=400):
     x = (screen_width / 2) - (width / 2)
     y = (screen_height / 2) - (height / 2)
     root.geometry('%dx%d+%d+%d' % (width, height, x, y))
+
+
+if __name__ == '__main__':
+    pop_up_message('hi')

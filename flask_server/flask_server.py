@@ -26,7 +26,7 @@ class User(db.Model):
     ip = db.Column(db.String(32), nullable=False)
 
     def __repr__(self):
-        return 'users id:{} name:{} ip:{}'.format(self.id, self.name, self.ip)  # omit password
+        return 'id:{} name:{} ip:{}'.format(self.id, self.name, self.ip)  # omit password
 
 
 class UserSchema(ma.Schema):
@@ -46,7 +46,7 @@ class Call(db.Model):  # call other side
     dst = db.Column(db.String(32), nullable=False)
 
     def __repr__(self):
-        return 'users id:{} src:{} operation:{} dst:{}'.format(self.id, self.src, self.operation, self.dst)
+        return 'id:{} src:{} operation:{} dst:{}'.format(self.id, self.src, self.operation, self.dst)
 
 
 class CallSchema(ma.Schema):
