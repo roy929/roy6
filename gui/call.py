@@ -37,7 +37,7 @@ class Call:
     # sets the widgets on the frames
     def set(self):
         # mainF
-        Label(self.mainF, text='Call to', font=('Ariel', 20), foreground='magenta').pack(side=TOP)
+        Label(self.mainF, text='Call to', style='TLabel').pack(side=TOP)
         self.target_name.pack()
         Button(self.mainF, text='Call', command=self.pre_call).pack()
         Label(self.mainF, text='Users', font=('Ariel', 18), foreground='blue').pack()
