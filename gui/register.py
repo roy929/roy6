@@ -29,7 +29,6 @@ class Register:
         self.entry_password.grid(row=1, column=1)
         enter.grid()
         self.frame.pack()
-        self.win.mainloop()
 
     def handle(self, event=None):
         # acquire args
@@ -59,3 +58,4 @@ if __name__ == '__main__':
     window = Tk()
     register = Register(window)
     register.main()
+    window.mainloop()

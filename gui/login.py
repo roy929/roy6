@@ -30,7 +30,6 @@ class Login:
         self.entry_pas.grid(row=1, column=1)
         enter.grid()
         self.frame.pack()
-        self.win.mainloop()
 
     def handle(self, event=None):
         name = self.entry_name.get()
@@ -55,3 +54,4 @@ if __name__ == '__main__':
     window = Tk()
     login = Login(window)
     login.main()
+    window.mainloop()

@@ -42,7 +42,6 @@ class Receive:
         self.mainF.pack()
         wait_thread = Thread(target=self.wait_for_a_call)
         wait_thread.start()
-        self.win.mainloop()
 
     def wait_for_a_call(self):
         while True:
@@ -95,3 +94,4 @@ if __name__ == '__main__':
     window = Tk()
     r = Receive(window, 'kkk')
     r.main()
+    window.mainloop()

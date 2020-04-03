@@ -32,7 +32,6 @@ class Call:
 
     def main(self):
         self.set()
-        self.win.mainloop()
 
     # sets the widgets on the frames
     def set(self):
@@ -156,3 +155,4 @@ if __name__ == '__main__':
     my_name = 'roy'
     c = Call(window, my_name)
     c.main()
+    window.mainloop()

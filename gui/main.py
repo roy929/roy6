@@ -20,7 +20,6 @@ class Main:
         self.button_login.grid(row=0)
         self.button_register.grid(row=1)
         self.frame.pack()
-        self.win.mainloop()
 
     def login(self):
         self.frame.destroy()
@@ -35,3 +34,4 @@ if __name__ == '__main__':
     window = Tk()
     f = Main(window)
     f.main()
+    window.mainloop()
